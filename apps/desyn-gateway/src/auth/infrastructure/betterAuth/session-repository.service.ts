@@ -22,6 +22,7 @@ export class SessionRepository implements SessionMethodeRepository {
       body: {
         provider: query.provider,
         scopes: ['file_content:read'],
+        callbackURL: process.env.CLIENT_URL,
       },
       headers,
       asResponse: true,

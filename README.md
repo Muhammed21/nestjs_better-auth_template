@@ -1,135 +1,215 @@
-# Turborepo starter
+# Desyn
 
-This Turborepo starter is maintained by the Turborepo core team.
+Desyn is a design system management application built as a Turborepo monorepo with a NestJS backend API gateway and a Next.js frontend.
 
-## Using this example
+## Technology Stack
 
-Run the following command:
+- **Monorepo**: Turborepo with pnpm workspaces
+- **Backend**: NestJS with Clean Architecture (Domain-Driven Design)
+- **Frontend**: Next.js 16 with React 19
+- **Database**: PostgreSQL with Prisma ORM
+- **Authentication**: Better-Auth integration
+- **Validation**: Zod for runtime type validation
+- **TypeScript**: Strict typing across all packages
 
-```sh
-npx create-turbo@latest
-```
-
-## What's inside?
-
-This Turborepo includes the following packages/apps:
-
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
+## Project Structure
 
 ```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
+desyn/
+├── apps/
+│   ├── web/                    # Next.js frontend application
+│   └── desyn-gateway/          # NestJS API gateway (Clean Architecture)
+├── packages/
+│   ├── ui/                     # Shared React component library
+│   ├── types/                  # Shared TypeScript types and Zod schemas
+│   ├── eslint-config/          # Shared ESLint configurations
+│   └── typescript-config/      # Shared TypeScript configurations
 ```
 
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+## Backend Architecture (desyn-gateway)
+
+The NestJS gateway follows **Clean Architecture** principles with a three-layer structure:
 
 ```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
+src/
+├── core/                       # Business logic layer
+│   ├── domain/                 # Entities, value objects, domain logic
+│   └── application/            # Use cases and port interfaces
+├── infrastructure/             # External services layer
+│   ├── repository/             # Concrete repository implementations
+│   └── betterAuth/             # Authentication service integration
+├── presentation/               # HTTP layer
+│   ├── http/dto/               # Data Transfer Objects
+│   ├── *.controller.ts         # HTTP controllers
+│   └── presenter/              # Response formatters
+└── shared/                     # Cross-cutting concerns
+    ├── pipes/                  # Validation pipes (ZodValidationPipe)
+    ├── filters/                # Exception filters
+    └── exceptions/             # Custom exceptions
 ```
 
-### Develop
+### Architecture Layers
 
-To develop all apps and packages, run the following command:
+#### Core Layer
+Contains the business logic, completely independent of external frameworks:
 
-```
-cd my-turborepo
+- **Domain**: Entities, value objects, and domain rules
+- **Application**: Use cases that orchestrate business operations and port interfaces (repository abstractions)
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
+#### Infrastructure Layer
+Implements concrete adapters for external services:
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
+- Repository implementations (Prisma)
+- Better-Auth integration for authentication
+- External service adapters
 
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+#### Presentation Layer
+Handles HTTP communication:
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
+- Controllers for routing
+- DTOs for request/response validation
+- Presenters to transform domain entities to HTTP responses
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
+### Module Organization Pattern
 
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+Each feature follows this structure:
 
 ```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
+feature/
+├── core/
+│   ├── application/
+│   │   ├── port/              # Repository interfaces
+│   │   └── useCases/          # Business logic use cases
+│   └── domain/
+│       ├── *.entity.ts        # Domain entities
+│       └── value-objects/     # Value objects
+├── infrastructure/
+│   └── repository/            # Concrete repository implementations
+└── presentation/
+    ├── http/dto/              # HTTP DTOs
+    ├── *.controller.ts
+    └── presenter/             # Response formatters
 ```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+### Key Design Patterns
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+| Pattern | Description |
+|---------|-------------|
+| **Use Cases** | All business logic encapsulated in use case classes |
+| **Repository Pattern** | Core defines port interfaces, infrastructure provides implementations |
+| **Dependency Inversion** | Controllers → Use Cases → Port Interfaces |
+| **Validation** | Zod schemas validate at presentation layer via custom pipe |
+| **Error Handling** | Global ZodValidationFilter catches and formats validation errors |
+
+### Database Models
+
+- `DesignSystem` - Design system container
+- `ColorToken` - Color tokens with multiple format support (hex, hsl, oklch, rgb)
+- `User`, `Session`, `Account`, `Verification` - Authentication models
+
+## API Documentation (Swagger)
+
+When the backend is running, Swagger documentation is available at:
 
 ```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
+http://localhost:8080/api/v1
 ```
 
-## Useful Links
+## Getting Started
 
-Learn more about the power of Turborepo:
+### Prerequisites
 
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+- Node.js 18+
+- pnpm 8+
+- PostgreSQL
+
+### Installation
+
+```bash
+# Install dependencies
+pnpm install
+
+# Setup database
+cd apps/desyn-gateway
+npx prisma generate
+npx prisma migrate dev
+```
+
+### Environment Variables
+
+Create a `.env` file in `apps/desyn-gateway/`:
+
+```env
+# Application
+NODE_ENV=development
+PORT=
+API_VERSION=v1
+
+# Client URL
+CLIENT_URL=
+
+# Database
+DATABASE_URL=""
+DIRECT_URL=""
+
+# Better Auth
+BETTER_AUTH_SECRET=
+BETTER_AUTH_URL=
+
+# Figma OAuth
+FIGMA_CLIENT_ID=
+FIGMA_CLIENT_SECRET=
+FIGMA_REDIRECT_URI=     
+```
+
+### Development
+
+```bash
+# Run all apps
+pnpm dev
+
+# Run specific app
+pnpm --filter=web dev              # Next.js on port 3000
+pnpm --filter=desyn-api dev        # NestJS on port 8080
+```
+
+### Building
+
+```bash
+# Build all apps
+pnpm build
+
+# Build specific app
+pnpm --filter=web build
+pnpm --filter=desyn-api build
+```
+
+### Testing
+
+```bash
+cd apps/desyn-gateway
+
+pnpm test           # Run tests
+pnpm test:watch     # Watch mode
+pnpm test:cov       # Coverage
+pnpm test:e2e       # E2E tests
+```
+
+### Database Commands
+
+```bash
+cd apps/desyn-gateway
+
+npx prisma generate                      # Generate Prisma client
+npx prisma migrate dev                   # Run migrations
+npx prisma migrate dev --name <name>     # Create new migration
+npx prisma studio                        # Open Prisma Studio
+```
+
+## Linting & Formatting
+
+```bash
+pnpm lint          # Lint all packages
+pnpm check-types   # Type check all packages
+pnpm format        # Format code
+```
