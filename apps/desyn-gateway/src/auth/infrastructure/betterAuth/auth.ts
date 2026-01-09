@@ -24,7 +24,6 @@ export const createAuth = (prisma: PrismaService) =>
       figma: {
         clientId: process.env.FIGMA_CLIENT_ID as string,
         clientSecret: process.env.FIGMA_CLIENT_SECRET as string,
-        clientKey: process.env.FIGMA_CLIENT_KEY as string,
         disableDefaultScope: true,
       },
     },
