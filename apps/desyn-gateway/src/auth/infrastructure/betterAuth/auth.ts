@@ -10,7 +10,7 @@ export const createAuth = (prisma: PrismaService) =>
      */
     baseURL: process.env.BETTER_AUTH_URL,
     secret: process.env.BETTER_AUTH_SECRET,
-    basePath: '/api/better-auth',
+    basePath: '/api/auth',
     /**
      * Database configuration
      */
@@ -22,9 +22,10 @@ export const createAuth = (prisma: PrismaService) =>
      */
     socialProviders: {
       figma: {
-        clientId: process.env.FIGMA_CLIENT_ID || '',
-        clientSecret: process.env.FIGMA_CLIENT_SECRET || '',
-        redirectURI: process.env.FIGMA_REDIRECT_URI || '/',
+        clientId: process.env.FIGMA_CLIENT_ID as string,
+        clientSecret: process.env.FIGMA_CLIENT_SECRET as string,
+        clientKey: process.env.FIGMA_CLIENT_KEY as string,
+        disableDefaultScope: true,
       },
     },
     plugins: [openAPI()],
@@ -32,8 +33,27 @@ export const createAuth = (prisma: PrismaService) =>
      * Session configuration
      */
     session: {
+      cookieCache: {
+        enabled: true,
+        maxAge: 3 * 30 * 24 * 60 * 60, // 3 mois
+        refreshCache: true,
+      },
       expiresIn: 60 * 60 * 24 * 30, // 30 jours
       updateAge: 60 * 60 * 24, // 1 jour
+      cookieOptions: {
+        sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'lax',
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        path: '/',
+      },
+    },
+    /**
+     * Advanced configuration
+     */
+    advanced: {
+      cookiePrefix: 'better-auth',
+      useSecureCookies: process.env.NODE_ENV === 'production',
+      crossSubDomainCookies: { enabled: false },
     },
     /**
      * Rate limiting configuration

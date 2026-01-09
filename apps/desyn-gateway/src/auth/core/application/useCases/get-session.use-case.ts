@@ -1,10 +1,10 @@
 import { SessionMethodeRepository } from '../port/session-methode.repository';
-import { Session } from '../../domain/session.entity';
+import { GetSessionQuery } from '../../domain/value-objects/get-session-query.vo';
 
 export class GetSessionUseCase {
   constructor(private readonly repository: SessionMethodeRepository) {}
 
-  async execute(headers: HeadersInit): Promise<void> {
-    return await this.repository.getSession(headers);
+  async execute(query: GetSessionQuery): Promise<any> {
+    return await this.repository.getSession(query);
   }
 }

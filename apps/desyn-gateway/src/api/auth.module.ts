@@ -9,9 +9,19 @@ import { SingInUseCase } from '../auth/core/application/useCases/sing-in.use-cas
 import { PrismaService } from '../../prisma/prisma.service';
 import { AUTH_INSTANCE } from '../auth/infrastructure/betterAuth/auth.constant';
 import { PrismaModule } from '../../prisma/prisma.module';
+import { AuthModule } from '@thallesp/nestjs-better-auth';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [
+    PrismaModule,
+    AuthModule.forRootAsync({
+      imports: [PrismaModule],
+      inject: [PrismaService],
+      useFactory: (prisma: PrismaService) => ({
+        auth: createAuth(prisma),
+      }),
+    }),
+  ],
   controllers: [AuthController],
   providers: [
     {
