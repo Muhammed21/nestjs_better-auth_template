@@ -52,4 +52,15 @@ FIGMA_REDIRECT_URI=
 pnpm dev
 ```
 
-and visit `http://localhost:PORT/api/auth/reference`.
+and visit `http://localhost:PORT/api/auth/reference#tag/default/POST/sign-in/social`.
+
+Choose **/sign-in/social** to test the API endpoint. and add the following JSON in the request body:
+
+```json
+{
+  "provider": "figma",
+  "scopes": [
+    "file_content:read"
+  ]
+}
+```
