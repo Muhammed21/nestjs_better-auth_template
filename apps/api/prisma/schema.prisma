@@ -8,36 +8,6 @@ datasource db {
   provider = "postgresql"
 }
 
-model DesignSystem {
-  id          String       @id @default(cuid())
-  name        String
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  colorTokens ColorToken[]
-
-  @@map("design_systems")
-}
-
-model ColorToken {
-  id             String       @id @default(cuid())
-  /// * ex: "primary-500"
-  tokenId        String
-  /// * ex: "primary.500"
-  tokenPath      String
-  designSystemId String
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  hexValue       String?
-  hslValue       String?
-  oklchValue     String?
-  rgbValue       String?
-  designSystem   DesignSystem @relation(fields: [designSystemId], references: [id], onDelete: Cascade)
-
-  @@unique([designSystemId, tokenId])
-  @@index([tokenPath])
-  @@map("color_tokens")
-}
-
 model User {
   id            String    @id
   name          String
