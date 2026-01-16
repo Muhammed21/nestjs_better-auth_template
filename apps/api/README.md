@@ -13,7 +13,7 @@
 pnpm install && pnpm build
 
 # Setup database
-cd apps/desyn-gateway
+cd apps/api
 npx prisma generate
 npx prisma migrate dev
 ```
