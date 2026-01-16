@@ -34,7 +34,6 @@
     "rxjs": "^7.8.1"
   },
   "devDependencies": {
-    "@desyn/types": "workspace:*",
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.18.0",
     "@figma/rest-api-spec": "^0.35.0",
